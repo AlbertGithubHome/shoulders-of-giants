@@ -42,30 +42,3 @@ def start_crawler():
 # start to crawler
 if __name__ == '__main__':
     start_crawler()
-
-def foo(n):
-    for i in range(1, n+1):
-        print(" "*(n-i) + "*"*(2*i-1))
-foo(5)
-
-sql = " where time ='CURRENT TIMESTAMP'"
-print(sql)
-newsql = sql.replace('\'', '')
-print(newsql)
-
-with open('mysql.txt', 'w') as file:
-    file.write(sql)
-    file.write("\n")
-    file.write(newsql)
-
-'''
-content = 'images.csdn.net/20171219/\xe7\x8c\xaa\xe8\x84\xb8\xe5\xa4\xa7\xe5\x9b\xbe.jpg'
-print(bytes(map(ord, content)).decode('utf8'))
-print(urllib.request.quote(content))
-
-content = 'images.csdn.net/20171218/336_280_\xe5\x89\xaf\xe6\x9c\xac.png'
-print(bytes(map(ord, content)).decode('utf8'))
-zw = bytes(map(ord, content)).decode('utf8')
-print(zw)
-print(urllib.request.quote(zw))
-'''
