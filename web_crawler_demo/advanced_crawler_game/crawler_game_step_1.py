@@ -6,6 +6,8 @@
 # @Github   : https://github.com/AlbertGithubHome
 __author__ = 'AlbertS'
 # @Subject  : crawler game step 1
+# 
+# 思路：从h3标签中不断找到进入下一个页面的数字
 
 import re
 import urllib.request
