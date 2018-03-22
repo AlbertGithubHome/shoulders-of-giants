@@ -11,7 +11,6 @@ __author__ = 'AlbertS'
 # 备注：1. 使用了美丽解析库：BeautifulSoup
 #       2. 使用了库pandas，它依赖了lxml，需要手动安装一下
 #       3. 使用了库pandas，它依赖了html5lib，需要手动安装一下
-#       
 
 
 import requests
@@ -24,18 +23,21 @@ from PIL import Image
 from PIL import ImageOps
 import pytesseract
 import subprocess
+import io
+import re
+#from StringIO import StringIO
 
 # relative url
 target_url = 'http://www.heibanke.com/lesson/crawler_ex'
 login_url = 'http://www.heibanke.com/accounts/login/?next=/lesson/crawler_ex'
-pwd_url = 'http://www.heibanke.com/lesson/crawler_ex03/pw_list'
+img_url = 'http://www.heibanke.com/captcha/image/'
 
 class crawler_client(object):
 
-    def __init__(self, level_url, login_url, pwd_url, account="AlbertS", password="heibanke"):
+    def __init__(self, level_url, login_url, img_url, account="AlbertS", password="heibanke"):
         self.level_url_template = level_url
         self.login_url_template = login_url
-        self.pwd_url = pwd_url
+        self.img_url = img_url
         self.account = account
         self.password = password
 
@@ -53,7 +55,7 @@ class crawler_client(object):
 
     def crawler_table_data(self):
         while self.count < 100:
-            response = self.session.get(self.pwd_url)
+            response = self.session.get(self.img_url)
             if response.ok:
                 print("response.ok, current count =", self.count)
                 df = pandas.read_html(response.content, encoding='utf-8')
@@ -118,16 +120,16 @@ class crawler_client(object):
 
 
     # 二值化算法
-    def binarizing(self, img, threshold):
-        pixdata = img.load()
-        w, h = img.size
+    def binarizing(self, image, threshold):
+        pixdata = image.load()
+        w, h = image.size
         for y in range(h):
             for x in range(w):
                 if pixdata[x, y] < threshold:
                     pixdata[x, y] = 0
                 else:
                     pixdata[x, y] = 255
-        return img
+        return image
 
     # 识别图片文字
     def ocr_img(self):
@@ -164,7 +166,8 @@ class crawler_client(object):
 
         # lang 指定英文识别
         content = pytesseract.image_to_string(image, lang ='eng', config=tessdata_dir_config) #lang='eng'
-        print(content)
+        captchaResponse = content.replace(" ", "").replace("\n", "")
+        print(captchaResponse)
 
 
     def get_captcha(self, imagePath):
@@ -193,18 +196,42 @@ class crawler_client(object):
         borderImage.save("./cleanImage2.png")
         print('Done')
 
+    def get_captcha_image_name(self, response_content):
+        image_name = re.findall(r'<img src="/captcha/image/(.*)/" alt="captcha"', response_content);
+        return image_name[0]
+
+    def save_and_clean_image(self, image_url, image_name):
+        img_response = self.session.get(image_url)
+        img = Image.open(img_response.content) #io.StringIO(img_response.content.decode('utf8')))
+        img.save("./images/" + image_name + ".png")
+        # 转化为灰度图
+        new_img = img.convert('L')
+        # 把图片变成二值图像。
+        new_img = self.binarizing(new_img, 190)
+        new_img.save("./images/" + image_name + "_clean.png")
+
+    def test(self):
+        response = self.session.get(self.level_url)
+        if response.ok:
+            image_name = self.get_captcha_image_name(response.content.decode('utf8'))
+            print("image name is : " + image_name)
+            self.save_and_clean_image(self.img_url + image_name, image_name)
+
+
 
 
 # strart game step 4
 if __name__ == '__main__':
-    crawler_game = crawler_client(target_url, login_url, pwd_url);
-    #crawler_game.login_by_session('03');
-    if False:
-        crawler_game.guess_password_with_normal('03');
+    crawler_game = crawler_client(target_url, login_url, img_url);
+    #crawler_game.login_by_session('04');
+    if True:
+        crawler_game.login_by_session('04');
+        crawler_game.test();
     else:
         #crawler_game.guess_password_with_thread('03', 8);
-        crawler_game.simple_orc_img();
+        #crawler_game.simple_orc_img();
         #crawler_game.cleanImage("./cleanImage.png");
+        crawler_game.ocr_img();
 
 # 第一次不用多线程的结果
 '''
