@@ -23,9 +23,7 @@ from PIL import Image
 from PIL import ImageOps
 import pytesseract
 import subprocess
-import io
 import re
-#from StringIO import StringIO
 
 # relative url
 target_url = 'http://www.heibanke.com/lesson/crawler_ex'
@@ -132,30 +130,22 @@ class crawler_client(object):
         return image
 
     # 识别图片文字
-    def ocr_img(self):
-
-        # 打开图片
-        image = Image.open("./verification.png")
-        # image = Image.open("./test.png")
-        new_im = image.crop((0, 0, 92, 36))
-        # 转化为灰度图
-        new_im = new_im.convert('L')
-        # 把图片变成二值图像。
-        new_im = self.binarizing(new_im, 190)
-        #new_im.show()
-        #return new_im;
-
+    def ocr_img(self, imagePath):
+        image = Image.open(imagePath)
+        #image.show()
         # tesseract 路径
         pytesseract.pytesseract.tesseract_cmd = 'H:\\Program Files (x86)\\Tesseract-OCR\\tesseract'
         # 语言包目录和参数
-        #tessdata_dir_config = '--tessdata-dir "H:\\Program Files (x86)\\Tesseract-OCR\\tessdata" --psm 3'
-        tessdata_dir_config = '--tessdata-dir "H:\\Program Files (x86)\\Tesseract-OCR\\tessdata"'
-
+        tessdata_dir_config = '--tessdata-dir "H:\\Program Files (x86)\\Tesseract-OCR\\tessdata" --psm 7 --user-words "./words_bed"'
         # lang 指定英文识别
-        question = pytesseract.image_to_string(new_im, lang='eng', config=tessdata_dir_config)
-        #question = question.replace("\n", "")[2:]
-
-        print(question);
+        captcha = pytesseract.image_to_string(image, lang ='eng', config=tessdata_dir_config)
+        captcha = captcha.replace(" ", "").replace("\n", "")
+        if len(captcha) == 4 and captcha.isupper() and captcha.isalnum():
+            print("try login, captcha is :", captcha)
+            return captcha
+        else:
+            print("recognize failed, captcha is :", captcha)
+        return False
 
     def simple_orc_img(self):
         image = Image.open("./cleanImage.png");
@@ -169,53 +159,52 @@ class crawler_client(object):
         captchaResponse = content.replace(" ", "").replace("\n", "")
         print(captchaResponse)
 
-
-    def get_captcha(self, imagePath):
-        print(u'开始识别{}中的验证码:'.format(imagePath))
-        try:
-            p = subprocess.Popen(["tesseract", imagePath, 'captcha'],
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            p.wait()
-        except:
-            print('subprocess error')
-        with open('captcha.txt', "r") as f:
-            captchaResponse = f.read().replace(" ", "").replace("\n", "")
-
-        if len(captchaResponse) == 4 and captchaResponse.isupper() and captchaResponse.isalnum():
-            print(u'识别结果:{},尝试登录'.format(captchaResponse))
-            return captchaResponse
-        else:
-            print(captchaResponse,u'识别失败...')
-        return 0
-
-    def cleanImage(self, imagePath):
-        print(u'清洗图片:{}...'.format(imagePath))
-        image = Image.open(imagePath)
-        image = image.point(lambda x: 0 if x < 143 else 255)
-        borderImage = ImageOps.expand(image, border=20, fill='white')
-        borderImage.save("./cleanImage2.png")
-        print('Done')
-
     def get_captcha_image_name(self, response_content):
         image_name = re.findall(r'<img src="/captcha/image/(.*)/" alt="captcha"', response_content);
         return image_name[0]
 
     def save_and_clean_image(self, image_url, image_name):
         img_response = self.session.get(image_url)
-        img = Image.open(img_response.content) #io.StringIO(img_response.content.decode('utf8')))
-        img.save("./images/" + image_name + ".png")
+        image_path_name = "./images/" + image_name
+        with open(image_path_name + ".png", 'wb') as file:
+            file.write(img_response.content)
+
+        img = Image.open(image_path_name + ".png")
         # 转化为灰度图
         new_img = img.convert('L')
         # 把图片变成二值图像。
         new_img = self.binarizing(new_img, 190)
-        new_img.save("./images/" + image_name + "_clean.png")
+        new_img.save(image_path_name + "_clean.png")
+        return image_path_name + "_clean.png"
 
     def test(self):
         response = self.session.get(self.level_url)
         if response.ok:
             image_name = self.get_captcha_image_name(response.content.decode('utf8'))
             print("image name is : " + image_name)
-            self.save_and_clean_image(self.img_url + image_name, image_name)
+            image = self.save_and_clean_image(self.img_url + image_name, image_name)
+            ret = self.ocr_img(image)
+            print(ret)
+
+    def get_captcha(self, max_count=50): # max_count是对于1个密码尝试识别验证码的次数
+        for x in range(1, max_count):
+            response = self.session.get(self.level_url)
+            if response.ok:
+                image_name = self.get_captcha_image_name(response.content.decode('utf8'))
+                print("image name is : " + image_name)
+                self.payload['captcha_0'] = image_name;
+
+                image_path = self.save_and_clean_image(self.img_url + image_name, image_name)
+                captcha = self.ocr_img(image_path)
+                if captcha:
+                    self.payload['captcha_1'] = captcha
+                    break
+            else:
+                print("The network is disconnect, please try again later");
+                time.sleep(10)
+            time.sleep(3)
+
+
 
 
 
@@ -226,15 +215,21 @@ if __name__ == '__main__':
     #crawler_game.login_by_session('04');
     if True:
         crawler_game.login_by_session('04');
-        crawler_game.test();
+        crawler_game.get_captcha();
     else:
         #crawler_game.guess_password_with_thread('03', 8);
         #crawler_game.simple_orc_img();
-        #crawler_game.cleanImage("./cleanImage.png");
         crawler_game.ocr_img();
 
 # 第一次不用多线程的结果
 '''
 login csrftoken is iRUEFKQtYvDqNj0kgkQVtm1pvvh1CHkQ
 login success : csrfmiddlewaretoken is drrUPkuKrVuWSZ0TtHcYqkwL2GI21WiN
+
+
+login csrftoken is Ja0gDaBWQuw0LSdoneGzIeIGjKMwfKbl
+login success : csrfmiddlewaretoken is o5vJn5WtzYZuxgLQP0uYaHANMGlXaiW4
+image name is : 89f39f59ef5be1182879358d3c720445d1ab98a9
+try login, captcha is : QVSE
+QVSE
 '''
