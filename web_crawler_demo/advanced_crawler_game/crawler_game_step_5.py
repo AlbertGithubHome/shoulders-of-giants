@@ -5,9 +5,12 @@
 # @Link     : http://blog.csdn.net/albertsh
 # @Github   : https://github.com/AlbertGithubHome
 __author__ = 'AlbertS'
-# @Subject  : crawler game step 4
+# @Subject  : crawler game step 5
 # 
 # 思路：就是尝试前面的密码0-30，
+#       这个页面的验证还包括一个隐藏字段captcha_0，也就是验证码图片的名字
+#       另外验证码的识别是这个页面的难点，需要好好花一点时间解决
+#       
 # 备注：1. 使用了美丽解析库：BeautifulSoup
 #
 # 尝试  1. 真正花时间较多的是处理验证码识别，现在代码中使用的是pytesseract库中的默认识别
@@ -166,7 +169,7 @@ if __name__ == '__main__':
     crawler_game.guess_password_with_normal('04');
 
 
-# 第一次不用多线程的结果
+# 中间调试结果
 '''
 login csrftoken is iRUEFKQtYvDqNj0kgkQVtm1pvvh1CHkQ
 login success : csrfmiddlewaretoken is drrUPkuKrVuWSZ0TtHcYqkwL2GI21WiN
