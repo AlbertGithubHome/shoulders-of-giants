@@ -1,7 +1,7 @@
 # shoulders-of-giants
 the project will provide some demos and I hope them to be shoulders of giants.
 
-## mysql_udf_demo
+## I. mysql_udf_demo
 
 1. 主要呈现一个使用Mysql UDF的示例，UDF全称是user defined function
 2. UDF属于mysql的一个拓展接口，一般翻译为用户自定义函数，这个是用来拓展mysql的技术手段
@@ -9,7 +9,7 @@ the project will provide some demos and I hope them to be shoulders of giants.
 4. 后续有时间会增加linux版本，和其他语言版本
 
 
-## web_crawler_demo
+## II. web_crawler_demo
 
 1. 主要做一个简单爬虫方法的整理，其中包括对网页、图片、数据的爬取
 2. 对于每种资源的爬取都提供了一些demo，方便日后随取随用，不需要做太多变换
@@ -34,7 +34,7 @@ the project will provide some demos and I hope them to be shoulders of giants.
 - 在此对作者表示感谢，并且附上链接地址：[黑板客爬虫](http://www.heibanke.com/lesson/crawler_ex00/)
 
 
-## image_recognition_demo
+## III. image_recognition_demo
 
 1. 这个demo源于爬取网站时对验证码的识别，进而可以扩展到对图片文字的识别
 2. 此demo目前只有python代码版本，主要提供两种识别方式，分别是通过tesseract识别和百度API识别
