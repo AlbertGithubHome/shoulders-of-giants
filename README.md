@@ -1,3 +1,6 @@
+[![Version](https://img.shields.io/badge/version-0.1.0-green.svg)](https://github.com/AlbertGithubHome/shoulders-of-giants/releases/tag/v0.1.0)
+[![License](https://img.shields.io/badge/license-GPL3.0-blue.svg)](https://github.com/AlbertGithubHome/shoulders-of-giants/blob/master/LICENSE)
+
 # shoulders-of-giants
 the project will provide some demos and I hope them to be shoulders of giants.
 
