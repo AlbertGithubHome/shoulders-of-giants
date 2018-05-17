@@ -7,7 +7,7 @@
 __author__ = 'AlbertS'
 # @Subject  : recognize image
 # 
-# 思路：首先将图片进行二值化处理，然后使用百度ORC库的的Python版本API进行识别
+# 思路：直接使用百度ORC库的的Python版本API进行识别
 #       
 # 备注：1. 使用了百度OCR API ，在 https://cloud.baidu.com/product/ocr 上注册新建应用即可
 #       2. 需要安装百度API，参考地址：https://cloud.baidu.com/doc/OCR/OCR-Python-SDK.html#.E5.BF.AB.E9.80.9F.E5.85.A5.E9.97.A8
