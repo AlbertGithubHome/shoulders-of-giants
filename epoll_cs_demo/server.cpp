@@ -21,8 +21,7 @@ void do_error(int epoll_fd, int fd);
 int main(int argc, char * argv[])
 {
     // 创建服务器套接字
-    struct sockaddr_in server_addr;
-    int listen_fd = socket(AF_INET,SOCK_STREAM,0);
+    int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (-1 == listen_fd)
     {
         printf("<server>create server socket error!\n");
@@ -30,10 +29,11 @@ int main(int argc, char * argv[])
     }
 
     // 设置服务器IP和Port
+    struct sockaddr_in server_addr;
     bzero(&server_addr, sizeof(server_addr));
     server_addr.sin_family = AF_INET;
-    inet_pton(AF_INET, SERVER_IP, &server_addr.sin_addr);
     server_addr.sin_port = htons(SERVER_PORT);
+    inet_pton(AF_INET, SERVER_IP, &server_addr.sin_addr);
 
     // 绑定套接字
     if (-1 == bind(listen_fd, (struct sockaddr*)&server_addr, sizeof(server_addr)))
@@ -48,6 +48,8 @@ int main(int argc, char * argv[])
 
     // 开始IO多路复用
     start_epoll(listen_fd);
+
+    close(listen_fd);
     return 0;
 }
 
@@ -67,6 +69,7 @@ void start_epoll(int listen_fd)
         event_count = epoll_wait(epoll_fd, wait_events, WAIT_EVENT_NUM, -1);
         handle_events(epoll_fd, wait_events, event_count, listen_fd, buffer);
     }
+    close(epoll_fd);
 }
 
 void epoll_control(int epoll_fd, int mode, int fd, int state)
