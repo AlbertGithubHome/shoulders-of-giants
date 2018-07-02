@@ -1,31 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "common.h"
 
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-
-#include <sys/epoll.h>
-#include <unistd.h>
-#include <sys/types.h>
-
-/*
-
-struct sockaddr_in: #include <netinet/in.h>
-bzero:              #include <string.h>
-inet_pton:          #include <netinet/in.h> <sys/socket.h> <arpa/inet.h>
-
-*/
-
-#define SERVER_IP       "192.168.1.214"
-#define SERVER_PORT     8899
-#define LISTEN_NUM      10
-
-#define EPOLL_SIZE      128
-#define WAIT_EVENT_NUM  EPOLL_SIZE / 2
-
-#define BUFFER_SIZE     1024
 
 // IO多路复用epoll
 void start_epoll(int listen_fd);
@@ -89,7 +63,7 @@ void start_epoll(int listen_fd)
     epoll_control(epoll_fd, EPOLL_CTL_ADD, listen_fd, EPOLLIN);
     while(true)
     {
-         // 获取已经准备好的描述符事件
+        // 等待准备好的描述符事件
         event_count = epoll_wait(epoll_fd, wait_events, WAIT_EVENT_NUM, -1);
         handle_events(epoll_fd, wait_events, event_count, listen_fd, buffer);
     }
@@ -134,7 +108,7 @@ void do_accpet(int epoll_fd, int listen_fd)
     else
     {
         printf("<server>accept a new client[%d]: %s:%d\n", client_fd, inet_ntoa(client_addr.sin_addr), client_addr.sin_port);
-        epoll_control(epoll_fd, EPOLL_CTL_ADD, client_fd, EPOLLIN | EPOLLET | EPOLLPRI | EPOLLHUP | EPOLLERR);
+        epoll_control(epoll_fd, EPOLL_CTL_ADD, client_fd, COMMON_EP_EVENT);
     }
 }
 
@@ -145,13 +119,13 @@ void do_read(int epoll_fd, int fd, char *buffer)
     {
         printf("<server>read client [%d] msg error!\n", fd);
         close(fd);
-        epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, EPOLLIN | EPOLLET | EPOLLPRI | EPOLLHUP | EPOLLERR);
+        epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, COMMON_EP_EVENT);
     }
     else if (0 == read_count)
     {
         printf("<server>client [%d] close, no data!\n", fd);
         close(fd);
-        epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, EPOLLIN | EPOLLET | EPOLLPRI | EPOLLHUP | EPOLLERR);
+        epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, COMMON_EP_EVENT);
     }
     else
     {
@@ -163,7 +137,7 @@ void do_read(int epoll_fd, int fd, char *buffer)
         {
             printf("<server>response to client[%d] error!\n", fd);
             close(fd);
-            epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, EPOLLIN | EPOLLET | EPOLLPRI | EPOLLHUP | EPOLLERR);
+            epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, COMMON_EP_EVENT);
         }
     }
 }
@@ -172,12 +146,12 @@ void do_disconnect(int epoll_fd, int fd)
 {
     printf("<server>client[%d] disconnect!\n", fd);
     close(fd);
-    epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, EPOLLIN | EPOLLET | EPOLLPRI | EPOLLHUP | EPOLLERR);
+    epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, COMMON_EP_EVENT);
 }
 
 void do_error(int epoll_fd, int fd)
 {
     printf("<server>client[%d] error!\n", fd);
     close(fd);
-    epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, EPOLLIN | EPOLLET | EPOLLPRI | EPOLLHUP | EPOLLERR);
+    epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, COMMON_EP_EVENT);
 }
