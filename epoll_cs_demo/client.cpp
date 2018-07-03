@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-void start_epoll(int client_fd);
+void start_epoll(int client_fd)
 {
     struct epoll_event wait_events[WAIT_EVENT_NUM];
     char buffer[BUFFER_SIZE] = {0};
@@ -97,9 +97,11 @@ void do_read(int epoll_fd, int fd, int client_fd, char *buffer)
     }
     else if (0 == read_count)
     {
-        printf("<server>client close, no data!\n", fd);
+        printf("<client>client[%d] close, no data!\n", fd);
         close(fd);
-        epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, EPOLLIN);
+        //epoll_control(epoll_fd, EPOLL_CTL_DEL, fd, EPOLLIN);
+        printf("<client>server closed, client to exit!\n");
+        exit(1);
     }
     else
     {
@@ -109,14 +111,14 @@ void do_read(int epoll_fd, int fd, int client_fd, char *buffer)
             int write_count = write(client_fd, buffer, strlen(buffer));
             if (-1 == write_count)
             {
-                perror("<client>client[%d] write error!\n", client_fd);
+                printf("<client>client[%d] write error!\n", client_fd);
                 close(client_fd);
                 epoll_control(epoll_fd, EPOLL_CTL_DEL, client_fd, EPOLLIN);
             }
         }
         else
         {
-            printf("<client>receive server response:%s\n", buffer);
+            printf("<client>receive server response:%s", buffer);
         }
     }
 }

@@ -102,11 +102,12 @@ void handle_events(int epoll_fd, struct epoll_event *events, int num, int listen
 void do_accpet(int epoll_fd, int listen_fd)
 {
     struct sockaddr_in client_addr;
-    socklen_t  client_addr_len;
+    socklen_t client_addr_len = sizeof(client_addr);
     int client_fd = accept(listen_fd, (struct sockaddr*)&client_addr, &client_addr_len);
     if (-1 == client_fd)
     {
         printf("<server>accpet client error!\n");
+        printf("%s\n",strerror(errno)); 
     }
     else
     {
@@ -134,7 +135,7 @@ void do_read(int epoll_fd, int fd, char *buffer)
     {
         // 收到消息后反馈到客户端
         buffer[BUFFER_SIZE] = '\0';
-        printf("<server>receive message is : %s\n", buffer);
+        printf("<server>receive client[%d] message, size = %d, content is : %s", fd, strlen(buffer), buffer);
         int write_count = write(fd, buffer, strlen(buffer));
         if (-1 == write_count)
         {
