@@ -48,9 +48,8 @@ the project will provide some demos and I hope them to be shoulders of giants.
 
 ## IV. epoll_cs_demo
 
-1. 这个demo主要是利用epoll实现IO多路复用的网络通讯的例子
-2. 相比于select模型具有最大并发限制小、回调实现效率高、省略拷贝速度快的特点
-3. 此demo实现了一个简单的服务器-客户端模式，可以实现多个客户端连接一个服务器的需求
-4. 实现的功能也非常简单，服务器收到客户端的数据后，将接收到的数据原样返回
-5. 服务器epoll监听server_fd的`EPOLLIN`事件和client_fd的`EPOLLIN | EPOLLET | EPOLLHUP | EPOLLERR`
-6. 客户端epoll监听client_fd和STDIN_FILENO（标准输入输出）的`EPOLLIN`事件
+1. 这个demo主要是利用epoll的IO多路复用特点实现网络通讯，完成了一个简单的服务器-客户端交互功能
+2. 功能简单，服务器收到客户端的数据后，将接收到的数据原样返回，可以实现多个客户端连接一个服务器的需求
+3. 相比于select模型具有最大并发限制小、回调函数触发效率高、mmap省略拷贝速度快的特点
+4. 服务器epoll监听server_fd的`EPOLLIN`事件和client_fd的`EPOLLIN | EPOLLET | EPOLLHUP | EPOLLERR`事件
+5. 客户端epoll监听client_fd和STDIN_FILENO（标准输入）的`EPOLLIN`事件
