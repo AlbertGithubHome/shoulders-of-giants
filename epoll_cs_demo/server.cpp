@@ -134,7 +134,7 @@ void do_read(int epoll_fd, int fd, char *buffer)
     else
     {
         // 收到消息后反馈到客户端
-        buffer[BUFFER_SIZE] = '\0';
+        buffer[read_count] = '\0';
         printf("<server>receive client[%d] message, size = %d, content is : %s", fd, strlen(buffer), buffer);
         int write_count = write(fd, buffer, strlen(buffer));
         if (-1 == write_count)

@@ -105,7 +105,7 @@ void do_read(int epoll_fd, int fd, int client_fd, char *buffer)
     }
     else
     {
-        buffer[BUFFER_SIZE] = '\0';
+        buffer[read_count] = '\0';
         if (fd == STDIN_FILENO)
         {
             int write_count = write(client_fd, buffer, strlen(buffer));
