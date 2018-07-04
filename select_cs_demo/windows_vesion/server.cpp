@@ -15,11 +15,10 @@ void do_disconnect(int *fd_array, int fd);
 // 改变fd集合
 void operate_fd_changed(int *fd_array, int fd, bool is_add);
 
-
 int main(int argc, char * argv[])
 {
 	WSADATA wsaData;
-	WORD wVersionRequested = MAKEWORD( 2, 2 );
+	WORD wVersionRequested = MAKEWORD(2, 2);
 	if (WSAStartup(wVersionRequested, &wsaData) != 0)
 	{
 		printf("<server>we could not find a usable WinSock DLL.\n");
