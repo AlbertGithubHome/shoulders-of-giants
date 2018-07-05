@@ -10,7 +10,6 @@ int main(int argc, char * argv[])
 	WSAStartup(wVersionRequested, &wsaData);
 	int listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 
-	// 设置服务器IP和Port
 	struct sockaddr_in server_addr;
 	memset(&server_addr, 0, sizeof(server_addr));
 	server_addr.sin_family		= AF_INET;
