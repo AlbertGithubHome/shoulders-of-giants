@@ -3,7 +3,7 @@
 #include <WinSock2.h>
 #pragma comment(lib, "ws2_32.lib")
 
-int main(int argc, char * argv[])
+int main(int argc, char *argv[])
 {
     WSADATA wsaData;
     WORD wVersionRequested = MAKEWORD(2, 2);
