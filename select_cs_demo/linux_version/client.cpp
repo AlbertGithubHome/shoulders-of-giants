@@ -92,10 +92,12 @@ void handle_fd_changed(fd_set *p_read_set, fd_set *p_error_set, int client_fd, c
 
 void do_read(int fd, int client_fd, char *buffer)
 {
-    printf("do read[%d]\n", fd);
-    int read_count = recv(fd, buffer, BUFFER_SIZE, MSG_NOSIGNAL);
+    //printf("do read[%d]\n", fd);
+    int read_count = read(fd, buffer, BUFFER_SIZE);
+    //int read_count = recv(fd, buffer, BUFFER_SIZE, MSG_NOSIGNAL);// ·µ»Ø-1
     if (-1 == read_count)
     {
+        //printf("accept error[%d] %s\n", errno, strerror(errno));
         printf("<client>read server msg error!\n");
         close(fd);
         exit(1);
@@ -109,7 +111,7 @@ void do_read(int fd, int client_fd, char *buffer)
     }
     else
     {
-        printf("my msg: %s", buffer);
+        //printf("my msg: %s", buffer);
         buffer[read_count] = '\0';
         if (fd == STDIN_FILENO)
         {
