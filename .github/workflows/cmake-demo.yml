@@ -1,4 +1,4 @@
-name: C CI
+name: cmake-demo CI
 
 on:
   push:
@@ -14,5 +14,6 @@ jobs:
       uses: actions/checkout@v3
     - name: make
       run: |
-        cd build-script
+        cd cmake_demo/build-script
         ./build.sh
+        cd ../bin && ./testcmake
