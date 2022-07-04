@@ -15,5 +15,6 @@ jobs:
     - name: make
       run: |
         cd cmake_demo/build-script
+        chmod +x build.sh
         ./build.sh
         cd ../bin && ./testcmake
